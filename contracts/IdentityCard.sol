@@ -61,10 +61,10 @@ contract IdentityCard is
     }
 
 
-    function mint(uint256 expiresAt, bytes calldata signature)
+    function mint(uint256 expiresAt, bytes calldata signature,string calldata verificationId)
         public
         payable
-        onlySigner(_msgSender(), expiresAt, signature)
+        onlySigner(_msgSender(), expiresAt, signature,verificationId)
         incrementNonce(_msgSender())
         nonReentrant
     {
@@ -84,7 +84,7 @@ contract IdentityCard is
         bytes calldata signature
     )
         public
-        onlySigner(_msgSender(), expiresAt, signature)
+        onlySigner(_msgSender(), expiresAt, signature,"")
         incrementNonce(_msgSender())
     {
         require(balanceOf(_msgSender())>0,"must have balance above zero to burn");
@@ -115,20 +115,24 @@ contract IdentityCard is
     modifier onlySigner(
         address account,
         uint256 expiresAt,
-        bytes calldata signature
+        bytes calldata signature,
+        string memory verificationId
     ) {
         require(block.number < expiresAt, "Signature has expired");
 
         console.log("SOL: nonce ", nonces[account]);
         console.log("SOL: expire block ", expiresAt);
         console.log("SOL: current block ", block.number);
+        console.log("SOL: chain ", block.chainid);
+        console.log("SOL: verificationId", verificationId);
         bytes32 hash = keccak256(
             abi.encodePacked(
                 account,
                 expiresAt,
                 address(this),
                 nonces[account],
-                block.chainid
+                block.chainid,
+                verificationId
             )
         );
         bytes32 ethSignedMessage = ECDSA.toEthSignedMessageHash(hash);
