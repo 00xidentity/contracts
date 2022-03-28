@@ -100,10 +100,11 @@ export async function makeSig(theNFT: any, sender: string) {
   console.log("-> JS: good signer ", GOOD_SIGNER.address);
   console.log("-> JS: bad signer ", BAD_SIGNER.address);
   const { chainId } = await ethers.provider.getNetwork();
+  const verificationId = "verificationPlaceholder";
 
   const packed = eu.solidityKeccak256(
-    ["address", "uint256", "address", "uint256", "uint256"],
-    [sender, expireBlock, theNFT.address, nonce, chainId]
+    ["address", "uint256", "address", "uint256", "uint256", "string"],
+    [sender, expireBlock, theNFT.address, nonce, chainId, verificationId]
   );
   const packedBytes = eu.arrayify(packed);
   const signedCorrectSigner = await GOOD_SIGNER.signMessage(packedBytes);
@@ -113,6 +114,7 @@ export async function makeSig(theNFT: any, sender: string) {
     signed_WRONGSigner: signedWrongSigner,
     expireBlock,
     nonce,
+    verificationId,
   };
 }
 export async function mineRealBlocks(n: number) {
